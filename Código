@@ -1,179 +1,129 @@
 #include <stdio.h>
 #include <stdlib.h>
-#define TAM_LISTA 3
 
-typedef struct{
-  char nome [30];
-  float preco;
-  int id;
-  int status;
-} Produtos; 
+#define TAM_LISTA 3 
 
-void cadastro(Produtos p[], int indice){
-  
-  p[indice].status = 1;
+typedef struct {
+    int codigo;
+    char descricao[50];
+    int quantidade;
+    float valor;
+} Produto;
 
-  p[indice].id = rand() % 100;
-  fflush(stdin);
+typedef struct {
+    Produto produtos[TAM_LISTA];
+    int totalProdutos;
+} Estoque;
 
-  printf("\nDigite o nome do produto: ");
-  fgets(p[indice].nome, sizeof(p[indice].nome), stdin);
-
-  fflush(stdin);
-
-  printf("Digite o valor do produto: ");
-  scanf("%f", &p[indice].preco);
+void inicializarEstoque(Estoque *estoque) {
+    estoque->totalProdutos = 0;
 }
 
-void imprimirLista(Produtos p[], int tamanhoLista) {
-  if(tamanhoLista == 0){
-    printf("\nLista vazia, adicione produtos e imprima a lista novamente.");
-    return;
-  } else {
-    for(int i = 0; i < tamanhoLista; i++){
-      printf("\nNome: %s", p[i].nome);
-      printf("\nValor: %.2f", p[i].preco);
-      printf("\nId: %d", p[i].id);
-      if(p[i].status == 1){
-        printf("\nStatus: Ativo.\n");
-      } else {
-        printf("\nStatus: Inativo.\n");
-      }
+void adicionarProduto(Estoque *estoque) {
+    if (estoque->totalProdutos < TAM_LISTA) {
+        Produto novoProduto;
+        printf("Digite o código do produto: ");
+        scanf("%d", &novoProduto.codigo);
+        printf("Digite a descrição do produto: ");
+        scanf(" %[^\n]s", novoProduto.descricao);
+        printf("Digite a quantidade do produto: ");
+        scanf("%d", &novoProduto.quantidade);
+        printf("Digite o valor do produto: ");
+        scanf("%f", &novoProduto.valor);
+
+        estoque->produtos[estoque->totalProdutos] = novoProduto;
+        estoque->totalProdutos++;
+
+        printf("Produto adicionado com sucesso!\n");
+    } else {
+        printf("Estoque cheio. Não é possível adicionar mais produtos.\n");
     }
-  }
 }
 
-void buscar(Produtos p[], int tamanhoLista, int id) {
-  if(tamanhoLista == 0) {
-    printf("\nLista vazia, adicione produtos e imprima a lista novamente.");
-    return;
-  } else {
-    for(int i = 0; i < tamanhoLista; i++) {
-      if(p[i].id == id){
-        printf("\nRegistro encontrado.");
-        printf("\nNome: %s.", p[i].nome);
-        printf("\nValor: %.2f", p[i].preco);
-        return;
-      }
-    }
-  }
-  printf("\nRegistro não encontrado ou não existe.");
-}
-
-void alterar(Produtos p[], int tamanhoLista, int id) {
-  int opcao;
-  if(tamanhoLista == 0){
-    printf("\nLista vazia, adiciona produtos e imprima a lista novamente.");
-    return;
-  } else {
-    for(int i = 0; i < tamanhoLista; i++){
-      if(p[i].id == id){
-        printf("\nRegistro não encontrado.");
-        printf("\nNome: %s", p[i].nome);
-        printf("\nValor: %.2f", p[i].preco);
-        printf("\n");
-        printf("\nDigite 1 para alterar o nome.");
-        printf("\nDigite 2 para alterar o valor.");
-        printf("\nDigite 3 para alterar o status.");
-        printf("\nDigite 4 para alterar todos.");
-        scanf("%d", &opcao);
-        switch(opcao){
-          case 1:
-            printf("\nDigite o nome: ");
-            fgets(p[i].nome, sizeof(p[i].nome), stdin);
-            break;
-          case 2:
-            printf("Digite o valor: ");
-            scanf("%f", &p[i].preco);
-            break;
-          case 3:
-            printf("Digite o status: 1 = Ativo / 0 = Inativo.");
-            scanf("%d", &p[i].status);
-            break;
-          case 4:
-            printf("\nDigite o nome: ");
-            fflush(stdin);
-            fgets(p[i].nome, sizeof(p[i].nome), stdin);
-            fflush(stdin);
-            printf("\nDigite o valor: ");
-            fflush(stdin);
-            scanf("%f", &p[i].preco);
-            fflush(stdin);
-            printf("Digite o Status: 1 = Ativo / 0 = Inativo.");
-            fflush(stdin);
-            scanf("%d", &p[i].status);
-            fflush(stdin);
-            break;
+void imprimirRelatorio(Estoque estoque) {
+    if (estoque.totalProdutos == 0) {
+        printf("Estoque vazio.\n");
+    } else {
+        printf("Relatório de Estoque:\n");
+        for (int i = 0; i < estoque.totalProdutos; i++) {
+            printf("\nCódigo: %d", estoque.produtos[i].codigo);
+            printf("\nDescrição: %s", estoque.produtos[i].descricao);
+            printf("\nQuantidade: %d", estoque.produtos[i].quantidade);
+            printf("\nValor: %.2f\n", estoque.produtos[i].valor);
         }
-      }
     }
-  }
 }
 
-void excluir(Produtos p[], int tamanhoLista, int id){
-  if(tamanhoLista == 0) {
-    printf("\nLista vazia, adicione produtos e imprima a lista novamente.");
-  } else {
-    for(int i = 0; i < tamanhoLista; i++){
-      if(p[i].id == id){
-        for(int j = 0; j < tamanhoLista; j++){
-          p[j] = p[j - 1];
+void pesquisarProduto(Estoque estoque) {
+    int codigoPesquisa;
+    printf("Digite o código do produto a ser pesquisado: ");
+    scanf("%d", &codigoPesquisa);
+
+    for (int i = 0; i < estoque.totalProdutos; i++) {
+        if (estoque.produtos[i].codigo == codigoPesquisa) {
+            printf("Produto encontrado:\n");
+            printf("Código: %d\n", estoque.produtos[i].codigo);
+            printf("Descrição: %s\n", estoque.produtos[i].descricao);
+            printf("Quantidade: %d\n", estoque.produtos[i].quantidade);
+            printf("Valor: %.2f\n", estoque.produtos[i].valor);
+            return;
         }
-        printf("\nDeletado com sucesso!");
-        return;
-      } 
     }
-    printf("\nProduto não encontrado ou não existe.");
-  }
+
+    printf("Produto não encontrado.\n");
 }
 
+void removerProduto(Estoque *estoque) {
+    int codigoRemover;
+    printf("Digite o código do produto a ser removido: ");
+    scanf("%d", &codigoRemover);
 
+    for (int i = 0; i < estoque->totalProdutos; i++) {
+        if (estoque->produtos[i].codigo == codigoRemover) {
+            for (int j = i; j < estoque->totalProdutos - 1; j++) {
+                estoque->produtos[j] = estoque->produtos[j + 1];
+            }
 
+            estoque->totalProdutos--;
+
+            printf("Produto removido com sucesso!\n");
+            return;
+        }
+    }
+
+    printf("Produto não encontrado.\n");
+}
 
 int main() {
-  Produtos p[TAM_LISTA];
+    Estoque estoque;
+    inicializarEstoque(&estoque);
 
-  int opcao, buscaId, totalCadastro = 0;
+    int opcao;
 
-  do{
-    printf("Digite 1 para cadastrar.");
-    printf("\n\nDigite 2 para imprimir a lista.");
-    printf("\n\nDigite 3 para buscar.");
-    printf("\n\nDigite 4 para alterar.");
-    printf("\n\nDigite 5 para excluir.");
-    printf("\n\nDigite 0 para sair do sistema.");
-    scanf("%d", &opcao);
-    switch(opcao){
-      case 1:
-        if(totalCadastro < TAM_LISTA){
-          cadastro(p, totalCadastro);
-          totalCadastro++;
-        }else{
-          printf("\nTotal de cadastros atingido.");
+    do {
+        printf("\nDigite 1 para adicionar produto.");
+        printf("\nDigite 2 para imprimir relatório de estoque.");
+        printf("\nDigite 3 para pesquisar produto.");
+        printf("\nDigite 4 para remover produto.");
+        printf("\nDigite 0 para sair.\n");
+
+        scanf("%d", &opcao);
+
+        switch (opcao) {
+            case 1:
+                adicionarProduto(&estoque);
+                break;
+            case 2:
+                imprimirRelatorio(estoque);
+                break;
+            case 3:
+                pesquisarProduto(estoque);
+                break;
+            case 4:
+                removerProduto(&estoque);
+                break;
         }
-        break;
-      case 2:
-        imprimirLista(p, totalCadastro);
-        break;
-      case 3:
-        printf("Digite o Id para buscar: ");
-        scanf("%d", &buscaId);
-        buscar(p, totalCadastro, buscaId);
-        break;
-      case 4:
-        printf("\nDigite o ID para alteração: ");
-        scanf("%d", &buscaId);
-        alterar(p, totalCadastro, buscaId);
-        break;
-      case 5:
-        printf("\nDigite o ID para alteração: ");
-        scanf("%d", &buscaId);
-        excluir(p, totalCadastro, buscaId);
-        totalCadastro--;
-        break;
-    }
-  }while(opcao != 0);
-  
-   return 0; 
-  
+    } while (opcao != 0);
+
+    return 0;
 }
